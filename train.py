@@ -130,6 +130,8 @@ class Model(ModelDesc):
 
         logits = get_instance_seg_net(pc)
 
+
+
         loss = get_loss(label, logits)
 
         if cfg.weight_decay > 0:
@@ -139,7 +141,11 @@ class Model(ModelDesc):
 
         self.cost = tf.add_n([loss, wd_cost], name='cost')
 
-        correct = tf.equal(tf.argmax(logits, 2), tf.to_int64(label))
+        pred = tf.argmax(logits, 2)
+
+        pred = tf.identity(pred, name='pred')
+
+        correct = tf.equal(pred, tf.to_int64(label))
         accuracy = tf.reduce_sum(tf.cast(correct, tf.float32)) / float(cfg.batch_size * cfg.num_point)
         tf.summary.scalar('accuracy', accuracy)
 
