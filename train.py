@@ -121,8 +121,8 @@ class Model(ModelDesc):
         super(Model, self).__init__()
 
     def _get_inputs(self):
-        return [InputDesc(tf.float32, [None, cfg.num_point, cfg.num_channel], 'input'),
-                InputDesc(tf.int32, [None, cfg.num_point], 'label')]
+        return [InputDesc(tf.float32, [None, None, cfg.num_channel], 'input'),
+                InputDesc(tf.int32, [None, None], 'label')]
 
 
     def _build_graph(self, inputs):

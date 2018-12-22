@@ -37,7 +37,9 @@ cfg.ds_dir = "dataset"
 cfg.frustum_dir = "frustum_pc"
 cfg.segment_dir = "frustum_pc_seg"
 
-cfg.train_ds_path = os.path.join(cfg.ds_dir, "data.pkl")
-cfg.val_ds_path = os.path.join(cfg.ds_dir, "data.pkl")
+# cfg.train_ds_path = os.path.join(cfg.ds_dir, "data.pkl")
+# cfg.val_ds_path = os.path.join(cfg.ds_dir, "data.pkl")
+cfg.train_ds_path = 'train.txt'
+cfg.val_ds_path = 'train.txt'
 
 cfg.xpd_ratio = 1.1
