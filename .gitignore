@@ -1,0 +1,11 @@
+*.pkl
+*.txt
+*.tar.gz
+frustum_pc
+frustum_pc_seg
+images
+*__pycache__
+dataset
+train_log
+*.o
+*.so

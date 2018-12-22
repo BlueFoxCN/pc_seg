@@ -1,4 +1,3 @@
-from provider import filter_pc
 import pickle
 import shutil
 from tqdm import tqdm
@@ -9,7 +8,7 @@ import numpy as np
 from cfgs.config import cfg
 from plyfile import PlyData, PlyElement
 
-from utils import save_ply_file
+from utils import save_ply_file, filter_pc
 
 def get_frustum_path(file_idx, box_idx, fmt='ply'):
     return "%s/%s/%s_%d.%s" % (cfg.ds_dir, cfg.frustum_dir, file_idx, box_idx, fmt)
@@ -143,7 +142,7 @@ def extract_pc_seg():
         box2d_list.append(label_dict[file_idx][box_idx])
 
     # dump the list into pickle file
-    with open(cfg.dataset_path, 'wb') as fp:
+    with open(cfg.train_ds_path, 'wb') as fp:
         pickle.dump(id_list, fp)
         pickle.dump(input_list, fp)
         pickle.dump(box2d_list, fp)
