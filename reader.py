@@ -3,6 +3,7 @@ import pickle
 import sys
 import os
 import numpy as np
+from plyfile import PlyData
 
 from tensorpack import *
 
@@ -25,14 +26,27 @@ class Data(RNGDataFlow):
         self.random_flip = random_flip
         self.random_shift = random_shift
 
+        f = open(ds_path, 'r')
+        lines = f.readlines()
+
+        self.id_list = []
+        self.box2d_list = []
+        for line in lines:
+            eles = line.split(' ')
+            self.id_list.append(eles[0])
+            box = [int(e) for e in eles[1:]]
+            self.box2d_list.append(box)
+
         # self.input_list
         # self.box2d_list
         # self.label_list
+        '''
         with open(ds_path, 'rb') as fp:
             self.id_list = pickle.load(fp)
             self.input_list = pickle.load(fp)
             self.box2d_list = pickle.load(fp)
             self.label_list = pickle.load(fp)
+        '''
 
     def size(self):
         return len(self.box2d_list)
@@ -44,7 +58,10 @@ class Data(RNGDataFlow):
         for k in idxs:
             # Get point cloud and label
             point_set = self.get_center_view_point_set(k)
-            seg = self.label_list[k] 
+
+            f = open(os.path.join(cfg.ds_dir, cfg.frustum_dir, "%s.pkl" % self.id_list[k]), 'rb')
+            seg = pickle.load(f)
+            # seg = self.label_list[k] 
             label = np.array([False] * point_set.shape[0])
 
             # Resample point cloud
@@ -73,24 +90,25 @@ class Data(RNGDataFlow):
         NxC points with first 3 channels as XYZ
         z is facing forward, x is left ward, y is downward
         '''
+        ply_path = os.path.join(cfg.ds_dir, cfg.frustum_dir, "%s.ply" % self.id_list[index])
+        ply_data = PlyData.read(ply_path)
+        vert = ply_data['vertex']
+        data = [vert[e] for e in ['x', 'y', 'z', 'red', 'green', 'blue']]
+        pc = np.array(data).transpose((1,0))
+
         # Use np.copy to avoid corrupting original data
-        point_set = np.copy(self.input_list[index])
-        box2d = np.copy(self.box2d_list[index])
-        return rotate_pc(point_set, box2d)
+        # point_set = np.copy(self.input_list[index])
+        # box2d = np.copy(self.box2d_list[index])
+        return rotate_pc(pc, self.box2d_list[index])
 
 if __name__=='__main__':
-    ds = Data(cfg.train_ds_path, shuffle=False)
+    ds = Data('train.txt', shuffle=False)
     ds.reset_state()
 
     g = ds.get_data()
 
     for i in range(10):
         dp = next(g)
-        import pdb
-        pdb.set_trace()
-        '''
-        for i in range(cfg.batch_size):
-            save_ply_file(batch_data[i], 'sample_%d.ply' % i)
-            save_ply_file(batch_data[i,np.where(batch_label[i])[0]], 'sample_%d_seg.ply' % i)
-        '''
+        save_ply_file(dp[0], 'sample_%d.ply' % i)
+        save_ply_file(dp[0][np.where(dp[1])[0]], 'sample_%d_seg.ply' % i)
 

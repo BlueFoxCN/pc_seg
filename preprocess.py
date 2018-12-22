@@ -102,6 +102,8 @@ def extract_pc_seg():
     label_list = []
     id_list = []
 
+    lines = []
+
     segment_path = os.path.join(cfg.ds_dir, cfg.segment_dir)
     ply_files = os.listdir(segment_path)
     for ply_file in tqdm(ply_files, ascii=True):
@@ -133,20 +135,32 @@ def extract_pc_seg():
             if ori_p in seg_p_list:
                 label.append(idx)
 
-        label_list.append(label)
-        input_list.append(ori_pc)
-        id_list.append(ori_ply_name)
+        # label_list.append(label)
+        # input_list.append(ori_pc)
+        # id_list.append(ori_ply_name)
+
+        # box2d_list.append(label_dict[file_idx][box_idx])
+
+        f = open(os.path.join(cfg.ds_dir, cfg.frustum_dir, "%s.pkl" % ori_ply_name), 'wb')
+        pickle.dump(label, f)
 
         file_idx, box_idx = ori_ply_name.split('_')
         box_idx = int(box_idx)
-        box2d_list.append(label_dict[file_idx][box_idx])
+        box_ele = [str(e) for e in label_dict[file_idx][box_idx]]
 
+        lines.append("%s %s" % (ori_ply_name, " ".join(box_ele)))
+
+    f = open('train.txt', 'w')
+    f.write('\n'.join(lines))
+    
+    '''
     # dump the list into pickle file
     with open(cfg.train_ds_path, 'wb') as fp:
         pickle.dump(id_list, fp)
         pickle.dump(input_list, fp)
         pickle.dump(box2d_list, fp)
         pickle.dump(label_list, fp)
+    '''
 
 if __name__ == "__main__":
     # preprocess()
