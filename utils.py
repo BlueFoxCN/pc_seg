@@ -2,7 +2,25 @@ from plyfile import PlyData, PlyElement
 import cv2
 import numpy as np
 
-from cfgs.config import cfg
+try:
+    from .cfgs.config import cfg
+except Exception:
+    from cfgs.config import cfg
+
+def enlarge_box(box, ratio, img_h, img_w):
+    x_center = (box[0] + box[2]) / 2
+    y_center = (box[1] + box[3]) / 2
+    width = box[2] - box[0]
+    height = box[3] - box[1]
+
+    xmin = int(max(0, x_center - ratio * (width / 2)))
+    ymin = int(max(0, y_center - ratio * (height / 2)))
+    xmax = int(min(img_w - 1, x_center + ratio * (width / 2)))
+    ymax = int(min(img_h - 1, y_center + ratio * (height / 2)))
+    box = [xmin, ymin, xmax, ymax]
+
+    return box
+
 
 def save_ply_file(pc, file_path):
     '''

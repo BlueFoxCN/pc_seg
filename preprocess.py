@@ -5,10 +5,14 @@ from scipy import misc
 import cv2
 import os
 import numpy as np
-from cfgs.config import cfg
 from plyfile import PlyData, PlyElement
 
-from utils import save_ply_file, filter_pc
+try:
+    from .cfgs.config import cfg
+    from .utils import enlarge_box, save_ply_file, filter_pc
+except Exception:
+    from cfgs.config import cfg
+    from utils import enlarge_box, save_ply_file, filter_pc
 
 def get_frustum_path(file_idx, box_idx, fmt='ply'):
     return "%s/%s/%s_%d.%s" % (cfg.ds_dir, cfg.frustum_dir, file_idx, box_idx, fmt)
@@ -46,16 +50,7 @@ def preprocess():
         while ele_idx < len(eles):
             box = [int(e) for e in eles[ele_idx:ele_idx + 4]]
 
-            x_center = (box[0] + box[2]) / 2
-            y_center = (box[1] + box[3]) / 2
-            width = box[2] - box[0]
-            height = box[3] - box[1]
-
-            xmin = int(max(0, x_center - cfg.xpd_ratio * (width / 2)))
-            ymin = int(max(0, y_center - cfg.xpd_ratio * (height / 2)))
-            xmax = int(min(w - 1, x_center + cfg.xpd_ratio * (width / 2)))
-            ymax = int(min(h - 1, y_center + cfg.xpd_ratio * (height / 2)))
-            box = [xmin, ymin, xmax, ymax]
+            box = enlarge_box(box, cfg.xpd_ratio, h, w)
 
             keep = filter_pc(pc, box)
             keep_pc = pc[keep]

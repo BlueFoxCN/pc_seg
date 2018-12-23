@@ -7,8 +7,12 @@ from plyfile import PlyData
 
 from tensorpack import *
 
-from cfgs.config import cfg
-from utils import save_ply_file, rotate_pc
+try:
+    from .cfgs.config import cfg
+    from .utils import save_ply_file, rotate_pc
+except Exception:
+    from cfgs.config import cfg
+    from utils import save_ply_file, rotate_pc
 
 class Data(RNGDataFlow):
     ''' Dataset class for Frustum PointNets training/evaluation.

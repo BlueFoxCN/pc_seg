@@ -8,7 +8,10 @@ import numpy as np
 
 from tensorpack import *
 
-from cfgs.config import cfg
+try:
+    from .cfgs.config import cfg
+except Exception:
+    from cfgs.config import cfg
 
 def sample_and_group(npoint, radius, nsample, xyz, points, knn=False, use_xyz=True):
     '''

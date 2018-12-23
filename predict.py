@@ -9,9 +9,14 @@ from plyfile import PlyData
 
 from tensorpack import *
 
-from cfgs.config import cfg
-from utils import save_ply_file, rotate_pc
-from train import Model
+try:
+    from .cfgs.config import cfg
+    from .utils import save_ply_file, rotate_pc
+    from .train import Model
+except Exception:
+    from cfgs.config import cfg
+    from utils import save_ply_file, rotate_pc
+    from train import Model
 
 def get_pred_func(args):
     sess_init = SaverRestore(args.model_path)

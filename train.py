@@ -10,9 +10,14 @@ import multiprocessing
 from tensorpack import *
 from tensorpack.tfutils.symbolic_functions import *
 
-from reader import Data
-from pointnet_util import pointnet_sa_module, pointnet_sa_module_msg, pointnet_fp_module
-from cfgs.config import cfg
+try:
+    from .reader import Data
+    from .pointnet_util import pointnet_sa_module, pointnet_sa_module_msg, pointnet_fp_module
+    from .cfgs.config import cfg
+except Exception:
+    from reader import Data
+    from pointnet_util import pointnet_sa_module, pointnet_sa_module_msg, pointnet_fp_module
+    from cfgs.config import cfg
 
 def get_instance_seg_net(point_cloud):
     ''' 3D instance segmentation PointNet v2 network.
