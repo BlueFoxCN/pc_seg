@@ -5,6 +5,8 @@ import math
 
 cfg = edict()
 
+cfg.test_ratio = 0.1
+
 cfg.intr = { "fx": 578.501,
              "fy": 578.501,
              "cx": 323.388,
@@ -13,7 +15,8 @@ cfg.intr = { "fx": 578.501,
 cfg.batch_size = 4
 cfg.val_batch_size = 1
 cfg.num_channel = 6
-cfg.num_point = 1024
+# cfg.num_point = 1024
+cfg.num_point = 512
 cfg.num_classes = 2
 
 cfg.weight_decay = 0
@@ -37,9 +40,7 @@ cfg.ds_dir = "dataset"
 cfg.frustum_dir = "frustum_pc"
 cfg.segment_dir = "frustum_pc_seg"
 
-# cfg.train_ds_path = os.path.join(cfg.ds_dir, "data.pkl")
-# cfg.val_ds_path = os.path.join(cfg.ds_dir, "data.pkl")
 cfg.train_ds_path = 'train.txt'
-cfg.val_ds_path = 'train.txt'
+cfg.val_ds_path = 'test.txt'
 
 cfg.xpd_ratio = 1.1

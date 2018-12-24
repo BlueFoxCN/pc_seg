@@ -10,3 +10,4 @@ train_log
 *.o
 *.so
 output
+*.pyc

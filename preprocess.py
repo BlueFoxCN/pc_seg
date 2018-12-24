@@ -1,4 +1,5 @@
 import pickle
+import random
 import shutil
 from tqdm import tqdm
 from scipy import misc
@@ -145,9 +146,20 @@ def extract_pc_seg():
 
         lines.append("%s %s" % (ori_ply_name, " ".join(box_ele)))
 
+    random.shuffle(lines)
+
+    total_num = len(lines)
+    test_num = int(cfg.test_ratio * total_num)
+    train_num = total_num - test_num
+    train_records = lines[0:train_num]
+    test_records = lines[train_num:]
+
     f = open('train.txt', 'w')
-    f.write('\n'.join(lines))
+    f.write('\n'.join(train_records))
     
+    f = open('test.txt', 'w')
+    f.write('\n'.join(test_records))
+
     '''
     # dump the list into pickle file
     with open(cfg.train_ds_path, 'wb') as fp:
