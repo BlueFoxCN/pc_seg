@@ -8,6 +8,7 @@ from datetime import datetime
 import multiprocessing
 
 from tensorpack import *
+from tensorpack.tfutils.summary import *
 from tensorpack.tfutils.symbolic_functions import *
 
 try:
@@ -117,7 +118,7 @@ def get_loss(label, logits):
     # 3D Segmentation loss                                            
     loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(\
         logits=logits, labels=label))
-    tf.summary.scalar('loss', loss)                           
+    loss = tf.identity(loss, name='loss')
     return loss
 
 
@@ -135,8 +136,6 @@ class Model(ModelDesc):
 
         logits = get_instance_seg_net(pc)
 
-
-
         loss = get_loss(label, logits)
 
         if cfg.weight_decay > 0:
@@ -152,7 +151,10 @@ class Model(ModelDesc):
 
         correct = tf.equal(pred, tf.to_int64(label))
         accuracy = tf.reduce_sum(tf.cast(correct, tf.float32)) / float(cfg.batch_size * cfg.num_point)
-        tf.summary.scalar('accuracy', accuracy)
+        accuracy = tf.identity(accuracy, name='accuracy')
+
+        add_moving_summary(loss, accuracy)
+
 
     def _get_optimizer(self):
         lr = get_scalar_var('learning_rate', 1e-3, summary=True)
@@ -182,13 +184,13 @@ def get_config(model, args):
     dataset_val = get_data('val', cfg.batch_size)
     callbacks = [
         ModelSaver(),
+        InferenceRunner(dataset_val,
+                        ScalarStats(['accuracy', 'loss'])),
         ScheduledHyperParamSetter('learning_rate',
                                  [(0, 1e-3)]),
                                  # [(0, 1e-3), (50, 5e-4), (100, 3e-4), (200, 1e-4)]),
         HumanHyperParamSetter('learning_rate'),
     ]
-    infs = [ClassificationError('wrong-top1', 'val-error-top1'),
-            ClassificationError('wrong-top5', 'val-error-top5')]
 
     return TrainConfig(
         model=model,
