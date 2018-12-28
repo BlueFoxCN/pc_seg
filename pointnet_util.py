@@ -1,8 +1,5 @@
 import os
 import sys
-from tf_ops.sampling.tf_sampling import farthest_point_sample, gather_point
-from tf_ops.grouping.tf_grouping import query_ball_point, group_point, knn_point
-from tf_ops.interpolation.tf_interpolate import three_nn, three_interpolate
 import tensorflow as tf
 import numpy as np
 
@@ -10,8 +7,14 @@ from tensorpack import *
 
 try:
     from .cfgs.config import cfg
+    from .tf_ops.sampling.tf_sampling import farthest_point_sample, gather_point
+    from .tf_ops.grouping.tf_grouping import query_ball_point, group_point, knn_point
+    from .tf_ops.interpolation.tf_interpolate import three_nn, three_interpolate
 except Exception:
     from cfgs.config import cfg
+    from tf_ops.sampling.tf_sampling import farthest_point_sample, gather_point
+    from tf_ops.grouping.tf_grouping import query_ball_point, group_point, knn_point
+    from tf_ops.interpolation.tf_interpolate import three_nn, three_interpolate
 
 def sample_and_group(npoint, radius, nsample, xyz, points, knn=False, use_xyz=True):
     '''
