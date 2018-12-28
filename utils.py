@@ -54,34 +54,38 @@ def save_ply_file(pc, file_path):
 
     ply.write(file_path)
 
-
-def filter_pc(pc, box):
+def filter_pc(pc, boxes):
     '''
-    filter the points by the 2d box
+    filter the points by the multiple 2d boxes
     Input:
         pc: numpy array (N,C)
             z is facing forward, x is left ward, y is downward
-        box: the box given by the detection model, [xmin, ymin, xmax, ymax]
+        boxes: the boxes given by the detection model, each element is [xmin, ymin, xmax, ymax], or a single box
     Output:
-        keep: the index list, which indicates the remained points
+        keeps: list of index list, which indicates the remained points, or a single list when a single box is provided
     '''
-    keep = []
+    single_box = False
+    if isinstance(boxes, list) == False:
+        single_box = True
+        boxes = [boxes]
+
+    keeps = [[] for _ in boxes]
     cvt_mat = cfg.color_mat.dot(cfg.d2c_mat)
-    for idx, point in enumerate(pc):
-        coord = point[:3]
 
-        point_homo = np.hstack([coord, 1])
-        color_uv_homo = cvt_mat.dot(point_homo)
+    points_homo = np.hstack([pc[:, :3], np.ones((pc.shape[0], 1))])
+    points_homo = np.transpose(points_homo)
 
-        color_uv = color_uv_homo[:2] / color_uv_homo[2]
+    color_uvs_homo = cvt_mat.dot(points_homo)
+    color_uvs = color_uvs_homo[:2] / color_uvs_homo[2]
 
-        u = int(np.around(color_uv[0]))
-        v = int(np.around(color_uv[1]))
+    us = color_uvs[0]
+    vs = color_uvs[1]
 
-        if box[0] <= u <= box[2] and box[1] <= v <= box[3]:
-            keep.append(idx)
+    for box_idx, box in enumerate(boxes):
+        indicators = np.all([box[0] <= us, us <= box[2], box[1] <= vs, vs <= box[3]], axis=0)
+        keeps[box_idx] = np.where(indicators)[0].tolist()
 
-    return keep
+    return keeps[0] if single_box else keeps
 
 
 def rotate_pc(pc, box2d):
